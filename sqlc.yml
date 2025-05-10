@@ -1,0 +1,10 @@
+version: "2"
+sql:
+  - schema: "sql/schema"  # Path to schema files
+    queries: "sql/queries"  # Path to query files
+    engine: "postgresql"
+    database:
+      uri: "postgres://postgres:root@localhost:5432/GO_project"
+    gen:
+      go:
+        out: "internal/database"  # Output directory for generated Go code

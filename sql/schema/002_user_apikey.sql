@@ -1,0 +1,5 @@
+-- -- +goose up
+-- ALTER TABLE users ADD COLUMN api_key VARCHAR(64) UNIQUE NOT NULL DEFAULT (encode(sha256(random()::text::bytea), 'hex'));
+-- -- +goose down
+-- ALTER TABLE users DROP COLUMN api_key;
+-- sqlc doesn't update with alter, therefore we should just do create table again
