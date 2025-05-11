@@ -1,4 +1,4 @@
--- goose postgres postgres://postgres:root@localhost:5432/GO_project up 
+
 --+goose Up
 CREATE TABLE feeds (
     id UUID PRIMARY KEY,

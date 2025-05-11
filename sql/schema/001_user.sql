@@ -1,4 +1,4 @@
--- goose postgres postgres://postgres:root@localhost:5432/GO_project up 
+-- goose postgres://postgres:{username}@{database_IP}:{database_port}/{databasename}?sslmode=disable
 --+goose Up
 CREATE TABLE users (
     id UUID PRIMARY KEY,
