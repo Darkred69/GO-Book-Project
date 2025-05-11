@@ -10,6 +10,19 @@ import (
 	"github.com/google/uuid"
 )
 
+// handlerFollowFeed allows the user to follow a feed
+// @Summary      Follow a feed
+// @Description  Create a follow relationship for a specific feed
+// @Tags         follow
+// @Accept       json
+// @Produce      json
+// @Param        follow  body      map[string]string  true  "Feed ID to follow"
+// @Success      201     {object}  Follow
+// @Failure      400     {object}  map[string]string
+// @Failure      404     {object}  map[string]string
+// @Failure      409     {object}  map[string]string
+// @Router       /v3/follow [post]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerFollowFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type params struct {
 		FeedID uuid.UUID `json:"feed_id"`
@@ -42,6 +55,15 @@ func (apiCfg *apiConfig) handlerFollowFeed(w http.ResponseWriter, r *http.Reques
 	responseWithJSON(w, http.StatusCreated, databaseFollowtoFollow(follow))
 }
 
+// handlerGetFollows returns all feeds followed by the user
+// @Summary      Get followed feeds
+// @Description  Retrieve a list of feeds the authenticated user is following
+// @Tags         follow
+// @Produce      json
+// @Success      200  {array}   Follow
+// @Failure      500  {object}  map[string]string
+// @Router       /v3/follow [get]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerGetFollows(w http.ResponseWriter, r *http.Request, user database.User) {
 	follows, err := apiCfg.DB.GetFollows(r.Context(), user.ID)
 	if err != nil {
@@ -51,7 +73,18 @@ func (apiCfg *apiConfig) handlerGetFollows(w http.ResponseWriter, r *http.Reques
 	responseWithJSON(w, 200, databaseFollowstoFollows(follows))
 }
 
-// Using Path Operation for delete
+// handlerUnfollow removes a feed from the user's followed list
+// @Summary      Unfollow a feed
+// @Description  Unfollow a feed by ID
+// @Tags         follow
+// @Produce      json
+// @Param        feed_id  path      string  true  "Feed ID to unfollow"
+// @Success      204      {object}  map[string]string "status": "No Content"
+// @Failure      400      {object}  map[string]string "error": "Invalid feed ID"
+// @Failure      404      {object}  map[string]string "error": "Feed not found"
+// @Failure      500      {object}  map[string]string "error": "Internal server error"
+// @Router       /v3/follow/{feed_id} [delete]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerUnfollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	feed := chi.URLParam(r, "feed_id")
 	feedID, err := uuid.Parse(feed)

@@ -1,3 +1,53 @@
+definitions:
+  auth.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  main.Follow:
+    description: A follow relationship between a user and a feed.
+    properties:
+      feed_id:
+        description: ID of the followed feed
+        type: string
+      user_id:
+        description: ID of the user
+        type: string
+    type: object
+  main.User:
+    description: A registered user of the application.
+    properties:
+      created_at:
+        description: Account creation timestamp
+        type: string
+      email:
+        description: User email address
+        type: string
+      id:
+        description: Unique user ID
+        type: string
+      name:
+        description: Full name
+        type: string
+      updated_at:
+        description: Last update timestamp
+        type: string
+    type: object
+  main.UserInput:
+    description: Input model for creating or updating a user.
+    properties:
+      email:
+        description: Email address
+        type: string
+      name:
+        description: Full name
+        type: string
+      password:
+        description: Account password
+        type: string
+    type: object
 info:
   contact: {}
   description: This is a sample server celler server.
@@ -5,7 +55,7 @@ info:
   title: Swagger Example API
   version: "1.0"
 paths:
-  /hello:
+  /:
     get:
       consumes:
       - application/json
@@ -20,4 +70,479 @@ paths:
       summary: Get a hello message
       tags:
       - example
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Returns an authentication token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Auth Token Response
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login to the system
+      tags:
+      - authentication
+  /auth/token/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: This function generates a JWT token using the user ID, with an
+        expiration time defined by the EXPIRATION_MINUTES environment variable.
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bearer Token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate JWT Token
+      tags:
+      - auth
+  /auth/user_id:
+    get:
+      consumes:
+      - application/json
+      description: This function extracts the user ID from the JWT token provided
+        in the Authorization header of the request.
+      parameters:
+      - description: Authorization Token (Bearer)
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User ID
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Extract User ID from Token
+      tags:
+      - auth
+  /v1/user:
+    delete:
+      description: Delete the current authenticated user's account
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - user
+    get:
+      description: Retrieve the current authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with name, email, and password
+      parameters:
+      - description: User registration input
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.UserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create user
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update name and email of the authenticated user
+      parameters:
+      - description: Updated user info
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.UserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - user
+  /v2/feeds:
+    get:
+      description: Retrieve a list of all feeds (publicly available or owned)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of feeds
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all feeds
+      tags:
+      - feeds
+    post:
+      consumes:
+      - application/json
+      description: Add a new RSS feed for the authenticated user
+      parameters:
+      - description: Feed data
+        in: body
+        name: feed
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created feed data
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request error
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create feed
+      tags:
+      - feeds
+  /v2/feeds/{feed_id}:
+    delete:
+      description: Remove a feed owned by the authenticated user
+      parameters:
+      - description: Feed ID
+        in: path
+        name: feed_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: 'Status: No Content'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Feed not found error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete feed
+      tags:
+      - feeds
+    put:
+      consumes:
+      - application/json
+      description: Modify the name or URL of a feed
+      parameters:
+      - description: Feed ID
+        in: path
+        name: feed_id
+        required: true
+        type: string
+      - description: Updated feed data
+        in: body
+        name: feed
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated feed data
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request error
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden error
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Feed not found error
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict error
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update feed
+      tags:
+      - feeds
+  /v3/follow:
+    get:
+      description: Retrieve a list of feeds the authenticated user is following
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Follow'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get followed feeds
+      tags:
+      - follow
+    post:
+      consumes:
+      - application/json
+      description: Create a follow relationship for a specific feed
+      parameters:
+      - description: Feed ID to follow
+        in: body
+        name: follow
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.Follow'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Follow a feed
+      tags:
+      - follow
+  /v3/follow/{feed_id}:
+    delete:
+      description: Unfollow a feed by ID
+      parameters:
+      - description: Feed ID to unfollow
+        in: path
+        name: feed_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: 'status": "No Content'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'error": "Invalid feed ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'error": "Feed not found'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'error": "Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Unfollow a feed
+      tags:
+      - follow
 swagger: "2.0"

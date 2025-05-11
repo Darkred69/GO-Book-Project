@@ -7,19 +7,22 @@ import (
 	"github.com/google/uuid"
 )
 
-// User models and functions
+// @name User
+// @description A registered user of the application.
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
+	ID        uuid.UUID `json:"id"`         // Unique user ID
+	Name      string    `json:"name"`       // Full name
+	CreatedAt time.Time `json:"created_at"` // Account creation timestamp
+	UpdatedAt time.Time `json:"updated_at"` // Last update timestamp
+	Email     string    `json:"email"`      // User email address
 }
 
+// @name UserInput
+// @description Input model for creating or updating a user.
 type UserInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name     string `json:"name"`     // Full name
+	Email    string `json:"email"`    // Email address
+	Password string `json:"password"` // Account password
 }
 
 func databaseUsertoUser(dbUser database.User) User {
@@ -32,19 +35,20 @@ func databaseUsertoUser(dbUser database.User) User {
 	}
 }
 
-// Feeds Model and functions
+// @name Feed
+// @description Represents an RSS feed followed or owned by a user.
 type Feed struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
-	// CreatedAt time.Time `json:"created_at"`
-	// UpdatedAt time.Time `json:"updated_at"`
-	UserID uuid.UUID `json:"user_id"`
-	URL    string    `json:"url"`
+	ID     uuid.UUID `json:"id"`      // Feed ID
+	Name   string    `json:"name"`    // Feed name
+	UserID uuid.UUID `json:"user_id"` // Owner's user ID
+	URL    string    `json:"url"`     // Feed URL
 }
 
+// @name FeedInput
+// @description Input model for creating or updating a feed.
 type FeedInput struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	Name string `json:"name"` // Feed name
+	URL  string `json:"url"`  // Feed URL
 }
 
 func databaseFeedtoFeed(dbFeed database.Feed) Feed {
@@ -64,10 +68,11 @@ func databaseFeedstoFeeds(dbFeed []database.Feed) []Feed {
 	return feeds
 }
 
-// Follow models and functions
+// @name Follow
+// @description A follow relationship between a user and a feed.
 type Follow struct {
-	UserID uuid.UUID `json:"user_id"`
-	FeedID uuid.UUID `json:"feed_id"`
+	UserID uuid.UUID `json:"user_id"` // ID of the user
+	FeedID uuid.UUID `json:"feed_id"` // ID of the followed feed
 }
 
 func databaseFollowtoFollow(dbFeed database.FeedFollow) Follow {
@@ -85,14 +90,15 @@ func databaseFollowstoFollows(dbFeed []database.FeedFollow) []Follow {
 	return follows
 }
 
-// Post models and functions
+// @name Post
+// @description A post from an RSS feed.
 type Post struct {
-	ID          uuid.UUID `json:"id"`
-	Title       string    `json:"title"`
-	Description *string   `json:"description"`
-	PublishedAt time.Time `json:"published_at"`
-	Url         string    `json:"url"`
-	FeedID      uuid.UUID `json:"feed_id"`
+	ID          uuid.UUID `json:"id"`           // Post ID
+	Title       string    `json:"title"`        // Post title
+	Description *string   `json:"description"`  // Post description
+	PublishedAt time.Time `json:"published_at"` // Publication timestamp
+	Url         string    `json:"url"`          // Post URL
+	FeedID      uuid.UUID `json:"feed_id"`      // Associated feed ID
 }
 
 func databasePosttoPost(dbPost database.Post) Post {
@@ -119,10 +125,11 @@ func databasePoststoPosts(dbPost []database.Post) []Post {
 	return posts
 }
 
-// LoginResponse represents the response with the token
+// @name LoginResponse
+// @description Token response after successful login.
 type LoginResponse struct {
-	Token     string `json:"token"`
-	TokenType string `json:"token_type"`
+	Token     string `json:"token"`      // Access token
+	TokenType string `json:"token_type"` // Token type (e.g., Bearer)
 }
 
 func ResponseToken(tokentype, access_token string) LoginResponse {

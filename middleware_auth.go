@@ -10,8 +10,8 @@ import (
 
 type authedHandler func(http.ResponseWriter, *http.Request, database.User)
 
-// Help dry-out the code that checks for API key and gets the user from the database
-// This function is a middleware that checks for the API key in the request header
+// middlewareAuth is a middleware that checks if the user is authenticated
+// and retrieves the user information from the database.
 func (apiCfg *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user_id, err := auth.GetUserID(r.Header)

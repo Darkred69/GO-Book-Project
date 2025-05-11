@@ -10,7 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
-// Create Feed
+// handlerCreateFeed creates a new feed
+// @Summary      Create feed
+// @Description  Add a new RSS feed for the authenticated user
+// @Tags         feeds
+// @Accept       json
+// @Produce      json
+// @Param        feed  body      map[string]interface{}  true  "Feed data"
+// @Success      201   {object}  map[string]interface{}    "Created feed data"
+// @Failure      400   {object}  map[string]interface{}    "Bad request error"
+// @Failure      409   {object}  map[string]interface{}    "Conflict error"
+// @Router       /v2/feeds [post]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	decoder := json.NewDecoder(r.Body)
 	var p FeedInput
@@ -40,7 +51,15 @@ func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Reques
 	responseWithJSON(w, http.StatusCreated, databaseFeedtoFeed(feed))
 }
 
-// Get Feeds
+// handlerGetFeeds returns all available feeds
+// @Summary      Get all feeds
+// @Description  Retrieve a list of all feeds (publicly available or owned)
+// @Tags         feeds
+// @Produce      json
+// @Success      200  {array}   map[string]interface{}    "List of feeds"
+// @Failure      500  {object}  map[string]interface{}    "Internal server error"
+// @Router       /v2/feeds [get]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
 	feeds, err := apiCfg.DB.GetAllFeeds(r.Context())
 	if err != nil {
@@ -51,7 +70,22 @@ func (apiCfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request,
 	responseWithJSON(w, 200, databaseFeedstoFeeds(feeds))
 }
 
-// Update Feed
+// handlerUpdateFeed updates an existing feed
+// @Summary      Update feed
+// @Description  Modify the name or URL of a feed
+// @Tags         feeds
+// @Accept       json
+// @Produce      json
+// @Param        feed_id  path      string     true  "Feed ID"
+// @Param        feed     body      map[string]interface{}  true  "Updated feed data"
+// @Success      200      {object}  map[string]interface{}  "Updated feed data"
+// @Failure      400      {object}  map[string]interface{}  "Bad request error"
+// @Failure      403      {object}  map[string]interface{}  "Forbidden error"
+// @Failure      404      {object}  map[string]interface{}  "Feed not found error"
+// @Failure      409      {object}  map[string]interface{}  "Conflict error"
+// @Failure      500      {object}  map[string]interface{}  "Internal server error"
+// @Router       /v2/feeds/{feed_id} [put]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerUpdateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	decoder := json.NewDecoder(r.Body)
 	var p FeedInput
@@ -102,7 +136,19 @@ func (apiCfg *apiConfig) handlerUpdateFeed(w http.ResponseWriter, r *http.Reques
 	responseWithJSON(w, 200, databaseFeedtoFeed(feed))
 }
 
-// Delete Feed
+// handlerDeleteFeed deletes an existing feed
+// @Summary      Delete feed
+// @Description  Remove a feed owned by the authenticated user
+// @Tags         feeds
+// @Produce      json
+// @Param        feed_id  path      string  true  "Feed ID"
+// @Success      204      {object}  map[string]string  "Status: No Content"
+// @Failure      400      {object}  map[string]string  "Bad request error"
+// @Failure      403      {object}  map[string]string  "Forbidden error"
+// @Failure      404      {object}  map[string]string  "Feed not found error"
+// @Failure      500      {object}  map[string]string  "Internal server error"
+// @Router       /v2/feeds/{feed_id} [delete]
+// @Security     BearerAuth
 func (apiCfg *apiConfig) handlerDeleteFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	id := chi.URLParam(r, "feed_id")
 	feedID, err := uuid.Parse(id)

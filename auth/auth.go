@@ -19,6 +19,12 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
+// ErrorResponse represents an error response format for API
+type ErrorResponse struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+}
+
 var secretKey string
 var expirationMinutes int
 
@@ -32,7 +38,18 @@ func init() {
 	expirationMinutes = expMinutes
 }
 
-// Generate Token function
+// GenerateToken generates a JWT token for the user with the given userID.
+// @Summary      Generate JWT Token
+// @Description  This function generates a JWT token using the user ID, with an expiration time defined by the EXPIRATION_MINUTES environment variable.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        user_id  path      string  true  "User ID"
+// @Success      200      {string}  string  "Bearer Token"
+// @Failure      400      {object}  ErrorResponse
+// @Failure      500      {object}  ErrorResponse
+// @Router       /auth/token/{user_id} [get]
+// @Security     BearerAuth
 func GenerateToken(userID string) (string, error) {
 	// Calculate expiration time as Unix timestamp (seconds)}
 	expirationTime := time.Now().Add(time.Duration(expirationMinutes) * time.Minute).Unix()
@@ -57,7 +74,19 @@ func GenerateToken(userID string) (string, error) {
 	return tokenString, nil
 }
 
-// GetUserID extracts the user_id from a JWT token
+// GetUserID extracts the user ID from the JWT token in the Authorization header.
+// @Summary      Extract User ID from Token
+// @Description  This function extracts the user ID from the JWT token provided in the Authorization header of the request.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header    string  true  "Authorization Token (Bearer)"
+// @Success      200            {string}  string  "User ID"
+// @Failure      400            {object}  ErrorResponse
+// @Failure      401            {object}  ErrorResponse
+// @Failure      500            {object}  ErrorResponse
+// @Router       /auth/user_id [get]
+// @Security     BearerAuth
 func GetUserID(header http.Header) (string, error) {
 	val := header.Get("Authorization")
 	if val == "" {

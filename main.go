@@ -68,11 +68,15 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+
 	// Add Swagger UI route to the main router
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
+
+	// Test if the server is running
+	router.Get("/ready", handlerReadiness)
+
 	// Create V1 router
 	v1 := chi.NewRouter()
-	v1.Get("/ready", handlerReadiness)
 	v1.Get("/err", handlerErr)
 	v1.Post("/login", apiCfg.handlerLogin)
 	v1.Post("/user", apiCfg.handlerCreateUser)

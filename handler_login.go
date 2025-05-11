@@ -9,6 +9,15 @@ import (
 	"github.com/badoux/checkmail"
 )
 
+// @Summary Login to the system
+// @Description Returns an authentication token
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string "Auth Token Response"
+// @Failure 400 {object} map[string]string "Bad Request Error"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /auth/login [post]
 func (apiCfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("username")
 	password := r.FormValue("password")
@@ -36,5 +45,4 @@ func (apiCfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	token_type := strings.Split(token, " ")[0]
 	access_token := strings.Split(token, " ")[1]
 	responseWithJSON(w, 200, ResponseToken(token_type, access_token))
-
 }

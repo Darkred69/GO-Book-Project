@@ -2,6 +2,7 @@
 /vendor/
 /tests-examples/
 /docs/
+project_1.exe
 # Playwright
 node_modules/
 /test-results/
