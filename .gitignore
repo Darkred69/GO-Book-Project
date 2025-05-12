@@ -3,6 +3,7 @@
 /tests-examples/
 /docs/
 project_1.exe
+sqlc.yml
 # Playwright
 node_modules/
 /test-results/
